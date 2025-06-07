@@ -7,7 +7,8 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types.js";
 import { validateSessionToken } from "$lib/auth.js";
 
-export const load: PageServerLoad = async ({ cookies }) => {
+export const load: PageServerLoad = async ({ cookies, parent }) => {
+    await parent()
     const token = cookies.get("session")
     if (token === undefined) {
         redirect(307, "/")
