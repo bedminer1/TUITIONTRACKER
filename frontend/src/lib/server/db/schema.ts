@@ -54,7 +54,9 @@ export const gradeRecordTable = sqliteTable("grade_records", {
   studentId: integer("student_id").notNull().references(() => studentTable.id),
   subject: text("subject").notNull(),
   grade: text("grade").notNull(), // could enforce union in app layer
-  score: integer("score").notNull(),
+  marks: integer("marks").notNull(),
+  totalMarks: integer("total_marks").notNull(),
+  percentageScore: integer("percentage_score").notNull(),
   date: text("date").notNull(),
   remarks: text("remarks"),
 });

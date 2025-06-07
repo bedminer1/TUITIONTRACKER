@@ -19,9 +19,10 @@
     import { CalendarIcon } from "@lucide/svelte"
     
     let { data } = $props()
-    let { student, sessions } = data
+    let { student, sessions, gradeRecords } = data
 
     let sessionDate = $state<DateValue | undefined>()
+    let testDate = $state<DateValue | undefined>()
     const df = new DateFormatter("en-US", {
         dateStyle: "long"
     })
@@ -74,8 +75,6 @@
             {/each}
         </Table.Body>
     </Table.Root>
-    <div>
-    </div>
 
     <!-- ADD SESSION -->
     <Dialog.Root>
@@ -100,7 +99,7 @@
                 <Input type="duration" name="duration" placeholder="eg. 1h30min" />
             </div>
             <div class="flex w-full max-w-sm flex-col gap-1.5">
-                <Label for="subject">Subject</Label>
+                <Label for="subject">Date</Label>
                 <input type="hidden" name="sessionDate" bind:value={sessionDate}>
                 <Popover.Root>
                     <Popover.Trigger>
@@ -126,6 +125,87 @@
             <div class="flex w-full max-w-sm flex-col gap-1.5">
                 <Label for="notes">Notes</Label>
                 <Textarea name="notes" placeholder="Add notes here" />
+            </div>
+            <Button type="submit" class="w-1/2">Submit</Button>
+        </form>
+      </Dialog.Content>
+    </Dialog.Root>
+
+    <Table.Root class="m-2 w-[97%]">
+        <Table.Caption>Grades</Table.Caption>
+        <Table.Header>
+            <Table.Row>
+            <Table.Head>Date</Table.Head>
+            <Table.Head>Grade</Table.Head>
+            <Table.Head class="text-1/3">Marks</Table.Head>
+            <Table.Head class="text-right w-1/5">Percentage</Table.Head>
+            </Table.Row>
+        </Table.Header>
+        <Table.Body>
+            {#each gradeRecords as record}
+             <Table.Row>
+                <Table.Cell class="font-medium">{record.date}</Table.Cell>
+                <Table.Cell>{record.grade}</Table.Cell>
+                <Table.Cell>{record.marks}/{record.totalMarks}</Table.Cell>
+                <Table.Cell class="text-right">{record.percentageScore}</Table.Cell>
+            </Table.Row>
+            {/each}
+        </Table.Body>
+    </Table.Root>
+
+    <!-- ADD GRADE -->
+    <Dialog.Root>
+      <Dialog.Trigger class={buttonVariants({ variant: "default" })}>
+        Add Grade Record
+    </Dialog.Trigger>
+      <Dialog.Content class="w-full">
+        <Dialog.Header>
+          <Dialog.Title>New Grade Record</Dialog.Title>
+          <Dialog.Description>
+            Enter grade details
+          </Dialog.Description>
+        </Dialog.Header>
+
+        <form method="POST" action="?/addGradeRecord" class="flex flex-col gap-4 justify-center items-center">
+             <div class="flex w-full max-w-sm flex-col gap-1.5">
+                <Label for="grade">Grade</Label>
+                <Input type="grade" name="grade" placeholder="eg. A1, B3, C5" />
+            </div>
+            <div class="flex w-full max-w-sm flex-col gap-1.5">
+                <Label for="marks">Marks</Label>
+                <div class="flex gap-2">
+                    <Input class="w-1/2" type="marks" name="marks" placeholder="eg. 13" /> 
+                    <p class="flex items-center"> / </p>
+                    <Input class="w-1/2" type="totalMarks" name="totalMarks" placeholder="30" />
+                </div>
+            </div>
+            <div class="flex w-full max-w-sm flex-col gap-1.5">
+                <Label for="date">Date</Label>
+                <input type="hidden" name="date" bind:value={testDate}>
+                <Popover.Root>
+                    <Popover.Trigger>
+                        {#snippet child({ props })}
+                        <Button
+                            variant="outline"
+                            class={cn(
+                            "w-[280px] justify-start text-left font-normal",
+                            !sessionDate && "text-muted-foreground"
+                            )}
+                            {...props}
+                        >
+                            <CalendarIcon class="mr-2 size-4" />
+                            {testDate ? df.format(testDate.toDate(getLocalTimeZone())) : "Select a date"}
+                        </Button>
+                        {/snippet}
+                    </Popover.Trigger>
+                    <Popover.Content class="w-auto p-0">
+                        <Calendar bind:value={testDate} type="single" initialFocus />
+                    </Popover.Content>
+                </Popover.Root>
+            </div>
+            <div class="flex w-full max-w-sm flex-col gap-1.5">
+                <Label for="remarks">Remarks</Label>
+                <Textarea name="remarks" placeholder="Add remarks here" />
             </div>
             <Button type="submit" class="w-1/2">Submit</Button>
         </form>
